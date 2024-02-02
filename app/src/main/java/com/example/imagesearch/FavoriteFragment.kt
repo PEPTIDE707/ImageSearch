@@ -1,59 +1,61 @@
 package com.example.imagesearch
 
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.example.imagesearch.model.SearchItemModel
+import com.example.imagesearch.databinding.FragmentFavoriteBinding
+import com.example.imagesearch.recyclerview.LikeAdapter
+import com.example.imagesearch.viewpager2.MainActivity
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [FavoriteFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class FavoriteFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+    private lateinit var mContext: Context
+
+    //바인딩 객체를 null 허용으로 설정 (프래그먼트의 뷰가 파괴될 때 null 처리하기 위함)
+    private var binding: FragmentFavoriteBinding? = null
+    private lateinit var adapter: LikeAdapter
+
+    //사용자의 좋아요를 받은 항목을 저장하는 리스트
+    private var likedItems: List<SearchItemModel> = listOf()
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        mContext = context
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_favorite, container, false)
+        // MainActivity로 부터 좋아요 받은 항목을 가져옴
+        val mainActivity = activity as MainActivity
+        likedItems = mainActivity.likedItem
+
+        Log.d("FavoriteFragment", "likeItem size = ${likedItems.size}")
+
+        //어댑터 설정
+        adapter = LikeAdapter(mContext).apply {
+            items = likedItems.toMutableList()
+        }
+
+        binding = FragmentFavoriteBinding.inflate(inflater, container, false).apply {
+            reFavorite.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+            reFavorite.adapter = adapter
+        }
+
+        return binding?.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment FavoriteFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            FavoriteFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        //메모리 누스를 방지하기 위해 뷰가 파괴될 때 바인딩 객체를 null로 설정
+        binding = null
     }
 }

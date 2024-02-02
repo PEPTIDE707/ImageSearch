@@ -5,15 +5,21 @@ import android.os.Bundle
 import androidx.viewpager2.widget.ViewPager2
 import com.example.imagesearch.FavoriteFragment
 import com.example.imagesearch.MainFragment
+import com.example.imagesearch.model.SearchItemModel
 import com.example.imagesearch.databinding.ActivityMainBinding
 import com.google.android.material.tabs.TabLayoutMediator
 
 class MainActivity : AppCompatActivity() {
 
-    private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    //ActivityMainBinding은 mainActivity의 레이아웃 바인딩 객체
+    private lateinit var binding: ActivityMainBinding
+
+    //좋아요를 눌러 선택된 아이템을 저장하는 리스트
+    var likedItem: ArrayList<SearchItemModel> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         initViewPager()
@@ -38,4 +44,13 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    fun addLikedItem(item: SearchItemModel){
+        if(!likedItem.contains(item)){
+            likedItem.add(item)
+        }
+    }
+//좋아요가 취소된 아이템을 likedItem 리스트에서 제거하는 함수
+    fun removeLikedItem(item: SearchItemModel){
+        likedItem.remove(item)
+    }
 }
